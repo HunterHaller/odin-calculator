@@ -6,6 +6,7 @@ let operator = "";
 const allDigits = "1234567890";
 const allOps = "+-*/"
 let defaultZero = true;
+let displayingResult = false;
 
 function add(numA, numB){
     return numA + numB;
@@ -67,54 +68,80 @@ operatorButtons.addEventListener("click", (event) => {
     let target = event.target;
     console.log("You clicked " + target.id)
 
-    if (target.id == "clear"){
+    if (target.id == "clear"){ //Clicking clear any time:
         clearDisplay();
         updateDisplay(0)
         numberA = "";
         numberB = "";
         operator = "";
+        displayingResult = false;
         defaultZero = true;
         console.log("Display and all variables reset!")
     } 
-    else if ((target.id == "0") && defaultZero){
+    else if ((target.id == "0") && defaultZero){ //Clicking zero before any other inputs:
         console.log("defaultZero still active, ignoring additional zeroes.")
     } 
-    else if (allDigits.includes(target.id)){
-        console.log("Button clicked is a digit!")
+    else if (allDigits.includes(target.id)){ //if clicking a digit,
 
-        if (!operator){
+        if (displayingResult == true){ //hitting a number right after getting a result:
+            console.log("Getting rid of a previous result!")
+            clearDisplay();
+            numberA = target.id;
+            console.log("numberA is now " + numberA + " with type " + typeof numberA)
+        } 
+        else if ((!operator) && (displayingResult == false)){ //Hitting a number for the first time OR after a clear:
             numberA += target.id;
             console.log("numberA is now " + numberA + " with type " + typeof numberA)
-        } else if (operator){
-            if (!numberB){
+        } 
+        else if (operator){ //if operator already set,
+            if (!numberB){ //and if there's no second number yet:
                 clearDisplay();
             }
-            numberB += target.id;
+            numberB += target.id; //add to second number
             console.log("numberB is now " + numberB + " with type " + typeof numberB)
         }
 
         updateDisplay(target.id)
+        displayingResult = false;
     } 
     else if ((allOps.includes(target.id)) && !defaultZero){
-        operator = target.id;
-        console.log("Operator is hot! It's " + operator + " with type " + typeof operator)
-    } 
+        if (numberB){
+            console.log("Second number already declared! No operators changed.");
+        } else{
+            operator = target.id;
+            console.log("Operator is hot! It's " + operator + " with type " + typeof operator)
+            displayingResult = false;
+            //defaultZero = true;
+        }
+    }
     else if ((allOps.includes(target.id)) && defaultZero){
         console.log("ERROR: Operator clicked, but default zero not cleared! No operator assigned.")
     } 
     else if (target.id == "="){
         if ((numberA) && (operator) && (numberB)){
-            console.log("Time to operate!")
-            clearDisplay();
-            operatingA = parseInt(numberA);
-            operatingB = parseInt(numberB);
-            let resultEquals = operate(operatingA, operator, operatingB);
-            console.log("Result: " + resultEquals)
-            numberA = resultEquals;
-            numberB = "";
-            operator = "";
 
-            updateDisplay(resultEquals);
+            if ((operator == "/") && (numberB == "0")){
+                console.log("ERROR: Division by zero is illegal!!")
+            } else{
+                console.log("Time to operate!")
+                clearDisplay();
+    
+                console.log(numberA + " " + operator + " " + numberB)
+    
+                operatingA = Number(numberA);
+                console.log("operatingA = " + operatingA)
+                operatingB = Number(numberB);
+                console.log("operatingB = " + operatingB)
+    
+                resultEquals = operate(operatingA, operator, operatingB);
+                console.log("Result: " + resultEquals)
+                numberA = resultEquals;
+                numberB = "";
+                operator = "";
+                
+                updateDisplay(Math.round(resultEquals * 10000) / 10000);
+                displayingResult = true;
+            }
         } else{
             console.log("ERROR, conditions not met!")
         }
