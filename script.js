@@ -2,6 +2,8 @@ let numberA = 0;
 let numberB = 0;
 let result = 0;
 let operator = "";
+const allDigits = "1234567890";
+const allOps = "+-*/"
 
 function add(numA, numB){
     return numA + numB;
@@ -39,7 +41,25 @@ function operate(numA, operation, numB){
     }
 }
 
+function updateDisplay(newNum){
+    document.querySelector("#display").textContent = newNum;
+}
+
 console.log(operate(2, "+", 2))
 console.log(operate(2, "-", 2))
 console.log(operate(2, "*", 2))
 console.log(operate(2, "/", 2))
+
+let operatorButtons = document.querySelector("#calcBody");
+
+operatorButtons.addEventListener("click", (event) => {
+    let target = event.target;
+    console.log("You clicked " + target.id)
+
+    if (allDigits.includes(target.id)){
+        console.log("Button clicked is a digit!")
+        updateDisplay(target.id)
+    } else{
+        console.log("Not a digit!")
+    }
+})
