@@ -7,7 +7,10 @@ const allDigits = "1234567890";
 const allOps = "+-*/"
 let defaultZero = true;
 let displayingResult = false;
+let decimalized = false;
 
+
+//OPERATING FUNCTIONS
 function add(numA, numB){
     return numA + numB;
 }
@@ -44,6 +47,8 @@ function operate(numA, operation, numB){
     }
 }
 
+
+//DISPLAY ADJUSTMENT FUNCTIONS
 function clearDisplay(){
     document.querySelector("#display").textContent = "";
 }
@@ -57,17 +62,14 @@ function updateDisplay(newNum){
     document.querySelector("#display").textContent += newNum;
 }
 
-console.log(operate(2, "+", 2))
-console.log(operate(2, "-", 2))
-console.log(operate(2, "*", 2))
-console.log(operate(2, "/", 2))
-
 let operatorButtons = document.querySelector("#calcBody");
 
+//CLICK FUNCTIONS
 operatorButtons.addEventListener("click", (event) => {
     let target = event.target;
     console.log("You clicked " + target.id)
 
+    //CLEAR
     if (target.id == "clear"){ //Clicking clear any time:
         clearDisplay();
         updateDisplay(0)
@@ -76,25 +78,40 @@ operatorButtons.addEventListener("click", (event) => {
         operator = "";
         displayingResult = false;
         defaultZero = true;
+        decimalized = false;
         console.log("Display and all variables reset!")
     } 
-    else if ((target.id == "0") && defaultZero){ //Clicking zero before any other inputs:
-        console.log("defaultZero still active, ignoring additional zeroes.")
-    } 
+    //DIGITS
+    //else if ((target.id == "0") && defaultZero){ //Clicking zero before any other inputs:
+    //    console.log("defaultZero still active, ignoring additional zeroes.")
+    //    defaultZero = false;
+    //    numberA = 0;
+    //    console.log("DefaultZero cleared, numberA is now 0.")
+    //}
     else if (allDigits.includes(target.id)){ //if clicking a digit,
 
-        if (displayingResult == true){ //hitting a number right after getting a result:
+        //CLICKING DIGITS
+        if (target.id == "0"){
+            if (numberA != "0"){
+                console.log("numberA isn't already just zero, so allowing extra zero...")
+                numberA += "0";
+            } else { //numberA is already zero: 
+                console.log("Ignoring additional zero...")
+                return;
+            }
+        } else if (displayingResult == true){ //hitting a number right after getting a result:
             console.log("Getting rid of a previous result!")
             clearDisplay();
             numberA = target.id;
             console.log("numberA is now " + numberA + " with type " + typeof numberA)
-        } 
+        }
         else if ((!operator) && (displayingResult == false)){ //Hitting a number for the first time OR after a clear:
             numberA += target.id;
             console.log("numberA is now " + numberA + " with type " + typeof numberA)
         } 
-        else if (operator){ //if operator already set,
+        else if ((numberA) && (operator)){ //if numberA and operator already set,
             if (!numberB){ //and if there's no second number yet:
+                console.log("B not started, clearing display.")
                 clearDisplay();
             }
             numberB += target.id; //add to second number
@@ -104,9 +121,33 @@ operatorButtons.addEventListener("click", (event) => {
         updateDisplay(target.id)
         displayingResult = false;
     } 
+    //DECIMAL PLACEMENT
+    else if (target.id == "."){
+        if ((!operator) && (!numberA.includes("."))){
+            console.log("Added decimal to numberA!")
+            numberA += "."
+            updateDisplay(".")
+        } else if ((operator) && (!numberB.includes("."))){
+            numberB += "."
+            console.log("Added decimal to numberB!")
+            updateDisplay(".")
+        } else if (defaultZero){
+            if (!numberA){
+                numberA = "0."
+            } else if ((operator) && (numberB)){
+                numberB = "0."
+            }
+            updateDisplay(".")
+        }
+        else{
+            console.log("Active number already has a decimal!")
+        }
+    }
+
+    //OPERATORS
     else if ((allOps.includes(target.id)) && !defaultZero){
         if (numberB){
-            console.log("Second number already declared! No operators changed.");
+            console.log("Second number already started! No operators changed.");
         } else{
             operator = target.id;
             console.log("Operator is hot! It's " + operator + " with type " + typeof operator)
@@ -117,6 +158,7 @@ operatorButtons.addEventListener("click", (event) => {
     else if ((allOps.includes(target.id)) && defaultZero){
         console.log("ERROR: Operator clicked, but default zero not cleared! No operator assigned.")
     } 
+    //EQUALS / GETTING A RESULT
     else if (target.id == "="){
         if ((numberA) && (operator) && (numberB)){
 
@@ -124,7 +166,6 @@ operatorButtons.addEventListener("click", (event) => {
                 console.log("ERROR: Division by zero is illegal!!")
             } else{
                 console.log("Time to operate!")
-                clearDisplay();
     
                 console.log(numberA + " " + operator + " " + numberB)
     
@@ -139,6 +180,7 @@ operatorButtons.addEventListener("click", (event) => {
                 numberB = "";
                 operator = "";
                 
+                clearDisplay();
                 updateDisplay(Math.round(resultEquals * 10000) / 10000);
                 displayingResult = true;
             }
@@ -147,4 +189,5 @@ operatorButtons.addEventListener("click", (event) => {
         }
         
     }
+    console.log("After this click, decimalized == " + decimalized)
 })
