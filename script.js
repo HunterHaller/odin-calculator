@@ -57,11 +57,6 @@ function updateDisplay(newNum){
     document.querySelector("#display").textContent += newNum;
 }
 
-console.log(operate(2, "+", 2))
-console.log(operate(2, "-", 2))
-console.log(operate(2, "*", 2))
-console.log(operate(2, "/", 2))
-
 let operatorButtons = document.querySelector("#calcBody");
 
 operatorButtons.addEventListener("click", (event) => {
